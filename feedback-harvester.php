@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Feedback Champuru
+Plugin Name: Feedback Harvester
 Version: 0.5.6
 Plugin URI: http://wppluginsj.sourceforge.jp/feedback-champru/
 Description: This plugin makes WordPress Comment boisterous adding feedbacks of Twitter, Social Bookmarks and so on.
@@ -30,22 +30,11 @@ License:
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-//**********************************************************************************
-// Require wp-load.php or wp-config.php
-//**********************************************************************************
-if (!function_exists('get_option')) {
-    $path = (defined('ABSPATH') ? ABSPATH : dirname(dirname(dirname(dirname(__FILE__)))) . '/');
-    require_once(file_exists($path.'wp-load.php') ? $path.'wp-load.php' : $path.'wp-config.php');
-}
-
-//**********************************************************************************
-// Template tag
-//**********************************************************************************
 function feedback_type($commenttxt = false, $trackbacktxt = false, $pingbacktxt = false, $tweettext = false, $hatenatext = false, $delisioustext = false, $friendfeedtext = false, $livedoortext = false, $buzzurltext = false, $googletext = false, $googleplustext = false, $echo = true) {
     global $feedback_champru;
 
     if (!isset($feedback_champru))
-        $feedback_champru = new FeedbackChampuru();
+        $feedback_champru = new FeedbackHarvester();
 
     add_filter('get_comment_type', array(&$feedback_champru, 'get_comment_type'));
     $type = get_comment_type();
@@ -93,8 +82,9 @@ function feedback_type($commenttxt = false, $trackbacktxt = false, $pingbacktxt 
     }
 }
 
-class FeedbackChampuru {
-    public $plugin_name   = 'feedback-champuru';
+class FeedbackHarvester
+{
+    public $plugin_name   = 'feedback-harvester';
     public $plugin_ver    = '0.1';
 
     const SCHEDULE_HANDLER = 'get-feedback-champuru';
@@ -1156,11 +1146,11 @@ class FeedbackHarvester_Config
 
 global $feedback_champru;
 
-$feedback_champru = new FeedbackChampuru();
+$feedback_champru = new FeedbackHarvester();
 
 if ($feedback_champru->icon_cache && strpos($_SERVER['PHP_SELF'], basename(__FILE__)) !== false && isset($_GET['url']) ) {
     // Get Image from Cache
-    $img_url  = FeedbackChampuru::escapeUrl(base64_decode($_GET['url']));
+    $img_url  = FeedbackHarvester::escapeUrl(base64_decode($_GET['url']));
     $img_size = (int) (isset($_GET['size']) ? stripslashes($_GET['size']) : 48);
 
     $feedback_champru->drawImage($img_url, $img_size);
