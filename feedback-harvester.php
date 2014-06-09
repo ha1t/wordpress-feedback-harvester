@@ -207,7 +207,7 @@ class FeedbackHarvester
         $icon_cache_dir   = apply_filters($this->plugin_name.'/icon_cach_dir', 'cache/' . $this->plugin_name);
         $this->cache_path = $this->_wp_content_dir( $icon_cache_dir );
         $this->cache_url  = $this->_wp_content_url( $icon_cache_dir );
-        $this->icon_cache = $this->icon_cache && $this->_check_icon_cache_dir($this->cache_path);
+        $this->icon_cache = $this->icon_cache && self::_check_icon_cache_dir($this->cache_path);
 
         // spam check enabled
         $spam_check = isset($options['spam_check']) ? $options['spam_check'] : $this->spam_check;
@@ -225,18 +225,23 @@ class FeedbackHarvester
         update_option($this->option_name, $options);
     }
 
-    // check icon cache directory
-    private function _check_icon_cache_dir( $cache_path = '') {
-        if ( function_exists('imagepng') ) {
-            if( !file_exists( dirname($cache_path) ) )
-                @mkdir( dirname($cache_path), 0777 );
-            if( !file_exists($cache_path) )
-                @mkdir( $cache_path, 0777 );
-            $icon_cache = file_exists($cache_path);
-        } else {
-            $icon_cache = false;
+    // TODO: delete at mark
+    private static function _check_icon_cache_dir($cache_path = '')
+    {
+
+        if (!function_exists('imagepng') ) {
+            return false;
         }
-        return ($icon_cache !== false);
+
+        if(!file_exists(dirname($cache_path))) {
+            @mkdir( dirname($cache_path), 0777);
+        }
+
+        if(!file_exists($cache_path)) {
+            @mkdir($cache_path, 0777);
+        }
+
+        return file_exists($cache_path);
     }
 
     // 引数で指定されたバージョンより新しければ
