@@ -137,14 +137,6 @@ class FeedbackHarvester
         add_filter($this->plugin_name.'/cache_expired', array(&$this, 'get_cache_expired'), 10, 2);
         add_filter($this->plugin_name.'/comments_array', array(&$this, 'set_gmt_offset'), 10, 2);
 
-        // percent encode capital letter
-        add_filter('post_link', array(&$this, 'percent_encode_capital_letter'));
-        add_filter('page_link', array(&$this, 'percent_encode_capital_letter'));
-        add_filter('tag_link', array(&$this, 'percent_encode_capital_letter'));
-        add_filter('category_link', array(&$this, 'percent_encode_capital_letter'));
-        add_filter('preview_post_link', array(&$this, 'percent_encode_capital_letter'));
-        add_filter('get_the_guid', array(&$this, 'percent_encode_capital_letter'));
-
         // admin bar
         add_action('wp_footer', array(&$this, 'wp_footer'), 1);
 
@@ -465,7 +457,7 @@ class FeedbackHarvester
             "comment_parent"       => '0' ,
             "user_id"              => '0' ,
             );
-        if ($this->checkSpam($comment))
+        if (self::checkSpam($comment))
             $comment->comment_approved = 'spam';
 
         return $comment;
@@ -496,8 +488,7 @@ class FeedbackHarvester
      */
     private function _get_feedback($type, $post_id, $permalink, $get_new = true)
     {
-        $permalink = $this->percent_encode_capital_letter($permalink);
-        if (!preg_match( '/^https?:\/\//i', $permalink)) {
+        if (!preg_match('/^https?:\/\//i', $permalink)) {
             return array();
         }
 
@@ -844,22 +835,6 @@ class FeedbackHarvester
         return (preg_match('/^[\d]+$/', !empty($comment_id) ? $comment_id : get_comment_ID()) ? $link : '');
     }
 
-    /**********************************************************
-    * percent encode capital letter
-    ***********************************************************/
-    public function to_upper($m)
-    {
-        return strtoupper($m[0]);
-    }
-
-    public function percent_encode_capital_letter($uri)
-    {
-        return preg_replace_callback('/(%[0-9a-f]{2}?)+/', array(&$this, 'to_upper'), $uri);
-    }
-
-    /**********************************************************
-    * Get cache expired
-    ***********************************************************/
     public function get_cache_expired($expired, $id = 0)
     {
         $post = &get_post($id);
@@ -871,7 +846,7 @@ class FeedbackHarvester
             );
     }
 
-    private function checkSpam(stdClass $comment)
+    private static function checkSpam(stdClass $comment)
     {
         if (!$this->spam_check) {
             return false;
