@@ -290,15 +290,6 @@ class FeedbackHarvester
             );
     }
 
-    private function _make_nonce_field($action = -1, $name = "_wpnonce", $referer = true , $echo = true )
-    {
-        if (!function_exists('wp_nonce_field')) {
-            return;
-        }
-
-        return wp_nonce_field($action, $name, $referer, $echo);
-    }
-
     private function remote_get($url, $args = array())
     {
         $ret = wp_remote_get($url, $args);
@@ -944,7 +935,7 @@ class FeedbackHarvester
         $out .= '<form method="post" id="update_options" action="' . $this->admin_action . '">'."\n";
         $out .= '<h2>' . __('Feedback Champuru Options', $this->textdomain_name) . '</h2><br />'."\n";
         if ($this->_check_wp_version("2.5"))
-            $out .= $this->_make_nonce_field("update_options", "_wpnonce_update_options", true, false);
+            $out .= wp_nonce_field("update_options", "_wpnonce_update_options", true, false);
 
         $out .= '<h3>' . __('Comment Sources', $this->textdomain_name) . '</h3>'."\n";
 
@@ -1029,7 +1020,7 @@ class FeedbackHarvester
         $out .= "<h3>" . __('Uninstall', $this->textdomain_name) . "</h3>\n";
         $out .= "<form method=\"post\" id=\"delete_options\" action=\"".$this->admin_action."\">\n";
         if ($this->_check_wp_version("2.5"))
-            $out .= $this->_make_nonce_field("delete_options", "_wpnonce_delete_options", true, false);
+            $out .= wp_nonce_field("delete_options", "_wpnonce_delete_options", true, false);
         $out .= "<p>" . __('All the settings of &quot;Feedback Champuru&quot; are deleted.', $this->textdomain_name) . "</p>";
         $out .= "<p class=\"submit\">\n";
         $out .= "<input type=\"submit\" name=\"options_delete\" class=\"button button-primary\" value=\"" . esc_attr(__('Delete Options', $this->textdomain_name)) . "\" />";
