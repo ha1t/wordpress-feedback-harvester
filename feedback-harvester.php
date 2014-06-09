@@ -876,62 +876,12 @@ class FeedbackHarvester
         if (!$this->spam_check) {
             return false;
         } else {
-            $is_blacklist = wp_blacklist_check($comment->author, '', $comment->comment_author_url, $comment->comment_content, '', '');
-            return ($is_blacklist || $this->akismet($comment));
+            return wp_blacklist_check($comment->author, '', $comment->comment_author_url, $comment->comment_content, '', '');
         }
     }
 
-    // Akismet
-    private function akismet(stdClass $comment)
+    public function set_gmt_offset( $comments_array, $type = '' )
     {
-        // @TODO implement me
-        return false;
-
-        global $akismet_api_host;
-        global $akismet_api_port;
-
-        if (!function_exists('akismet_http_post') || !(get_option('wordpress_api_key') || $wpcom_api_key)) {
-            return false;
-        }
-
-        $c = array();
-        $author = $author_email = $author_url = $content = '';
-
-        $c['blog'] = get_option( 'home' );
-        $c['comment_type'] = $comment->comment_type;
-        if ( $permalink = get_permalink() )
-            $c['permalink'] = $permalink;
-        if ( '' != $comment->comment_author )
-            $c['comment_author'] = $comment->comment_author;
-        if ( '' != $comment->comment_author_email )
-            $c['comment_author_email'] = $comment->comment_author_email;
-        if ( '' != $comment->comment_author_url )
-            $c['comment_author_url'] = $comment->comment_author_url;
-        if ( '' != $comment->comment_content )
-            $c['comment_content'] = $comment->comment_content;
-
-        $query_string = '';
-        foreach ( $c as $key => $data ) {
-            $query_string .= $key . '=' . urlencode( stripslashes( $data ) ) . '&';
-        }
-
-        $post_id = $comment->comment_post_ID;
-        $meta_key = self::META_KEY_PRE . 'akismet_result';
-        $result_key = md5($query_string);
-
-        $akismet_result = (array) $this->_get_post_meta($post_id, $meta_key);
-        if ( !isset($akismet_result[$result_key]) ) {
-            $response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
-            $akismet_result[$result_key] = ('true' == $response[1] ? true : false);
-            $this->_update_post_meta($post_id, $meta_key, $akismet_result );
-        }
-        return $akismet_result[$result_key];
-    }
-
-    /**********************************************************
-    * Set gmt offset
-    ***********************************************************/
-    public function set_gmt_offset( $comments_array, $type = '' ){
         $gmt_offset = 3600 * get_option('gmt_offset');
         foreach ((array)$comments_array as $key => $comment) {
             if (method_exists($comment, 'comment_date_gmt') && method_exists($comments_array[$key], 'comment_date')) {
@@ -958,7 +908,8 @@ class FeedbackHarvester
         return $comments_array;
     }
 
-    public function option_page() {
+    public function option_page()
+    {
         if (isset($_POST['options_update'])) {
             if ($this->_check_wp_version("2.5"))
                 check_admin_referer("update_options", "_wpnonce_update_options");
